@@ -19,20 +19,29 @@ public class UserServiceImpl implements IUserService<User, String> {
         return userData.stream().filter(x -> x.getId().equals(id)).collect(Collectors.toList());
     }
 
+    //saveAll works both as UPDATE or INSERT operation
+    //depending on user id presence
     public <S extends User> List<S> saveAll(Iterable<S> users) {
-        users.forEach(this::save);
-        return Lists.newArrayList(users);
+        users.forEach(user ->
+                userData.stream().filter(x -> x.getId().equals(user.getId())).findFirst().ifPresent(userData::remove)
+        );
+        List<S> list = Lists.newArrayList(users);
+        userData.addAll(list);
+        return list;
     }
 
+    //save works both as UPDATE or INSERT operation
+    //depending on user id presence
     public <S extends User> S save(S user) {
-        boolean added = userData.add(user);
-        return added ? user : null;
+        userData.stream().filter(x -> x.getId().equals(user.getId())).findFirst().ifPresent(userData::remove);
+        userData.add(user);
+        return user;
     }
 
     public User delete(String id) {
-        User user = userData.stream().filter(x -> x.getId().equals(id)).findFirst().orElse(null);
-        boolean removed = (user != null) && userData.remove(user);
-        return removed ? user : null;
+        User user = userData.stream().filter(x -> x.getId().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("No user found with Id=" + id));
+        userData.remove(user);
+        return user;
     }
 
     public Map<String, List<User>> findAllGroupByGroupId() {
