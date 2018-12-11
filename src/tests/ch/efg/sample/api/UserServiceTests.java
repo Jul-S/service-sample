@@ -16,12 +16,12 @@ public class UserServiceTests {
 
     private List<User> getUsers() {
         ArrayList<User> users = new ArrayList<>();
-        users.add(new User("123", "John", "G011"));
-        users.add(new User("124", "Bob", "G012"));
-        users.add(new User("125", "Ann", "G011"));
-        users.add(new User("126", "And", "G002"));
-        users.add(new User("127", "One", "G001"));
-        users.add(new User("124", "More", "G012"));
+        users.add(new User("121", "John", "G011"));
+        users.add(new User("122", "Bob", "G012"));
+        users.add(new User("123", "Ann", "G011"));
+        users.add(new User("124", "And", "G002"));
+        users.add(new User("125", "One", "G001"));
+        users.add(new User("126", "More", "G012"));
         return users;
     }
 
@@ -39,7 +39,7 @@ public class UserServiceTests {
         List<User> users = getUsers();
         UserServiceImpl userService = new UserServiceImpl(users);
         List<User> all = userService.findById("124");
-        assertThat(all.size(), is(2));
+        assertThat(all.size(), is(1));
         all.forEach(System.out::println);
     }
 
@@ -49,19 +49,35 @@ public class UserServiceTests {
         UserServiceImpl userService = new UserServiceImpl(users);
 
         List<User> addUsers = Arrays.asList(
-                new User("122", "Add", "G012"),
+                new User("124", "Add", "G012"),
                 new User("129", "Meto", "G001")
         );
 
         List<User> all = userService.saveAll(addUsers);
         assertEquals(all,addUsers);
-        assertThat(userService.findAll().size(), is(8));
+        assertThat(userService.findAll().size(), is(7));
         all.forEach(System.out::println);
 
         User actual = userService.delete("124");
         assertNotNull(actual);
         userService.findAll().forEach(System.out::println);
+        assertThat(userService.findAll().size(), is(6));
+    }
+
+    @Test
+    public void testSave() {
+        List<User> users = getUsers();
+        UserServiceImpl userService = new UserServiceImpl(users);
+        User user1 = new User("124", "Add", "G012");
+        userService.save(user1);
+        assertEquals(userService.findById("124").get(0), user1);
+
+        User user2 = new User("127", "Add", "G012");
+        userService.save(user2);
+        assertEquals(userService.findById("127").get(0), user2);
         assertThat(userService.findAll().size(), is(7));
+        userService.findAll().forEach(System.out::println);
+
     }
 
     @Test
